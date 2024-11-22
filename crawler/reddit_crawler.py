@@ -3,9 +3,9 @@ import requests
 
 # Initialize Reddit API
 reddit = praw.Reddit(
-    client_id='WsclGJjb_JCK0fewwULu5A',          # Your client ID
-    client_secret='lB_YxjhBfFdAH88SKvw9nrCgQEbzDw',  # Your client secret
-    user_agent='Model Ranking by Difficult-Check-1934'  # Custom user agent
+    client_id='',          # Your client ID
+    client_secret='',  # Your client secret
+    user_agent=''  # Custom user agent
 )
 
 # Fetch posts
