@@ -1,24 +1,23 @@
-import React from 'react';
 import { ApolloClient, InMemoryCache, ApolloProvider, split } from '@apollo/client';
 import { HttpLink } from '@apollo/client';
-import { getMainDefinition } from '@apollo/client/utilities';
-import { createClient } from 'graphql-ws';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
+import { getMainDefinition } from '@apollo/client/utilities';
 
-// Define the HTTP link for queries and mutations
+// HTTP Link for queries and mutations
 const httpLink = new HttpLink({ uri: 'http://localhost:4000/graphql' });
 
-// Define the WebSocket link for subscriptions using graphql-ws
+// WebSocket Link for subscriptions
 const wsLink = new GraphQLWsLink(
   createClient({
     url: 'ws://localhost:4000/graphql',
     options: {
-      reconnect: true, // Automatically reconnect on disconnect
+      reconnect: true,
     },
   })
 );
 
-// Split the links: Use WebSocket for subscriptions, HTTP for queries/mutations
+// Split links: Use WebSocket for subscriptions, HTTP for queries/mutations
 const link = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
@@ -28,13 +27,13 @@ const link = split(
   httpLink
 );
 
-// Create the Apollo Client
+// Initialize Apollo Client
 const client = new ApolloClient({
   link,
   cache: new InMemoryCache(),
 });
 
-// Apollo Provider Wrapper
+// Wrap your app in ApolloProvider
 const ApolloProviderWrapper = ({ children }) => (
   <ApolloProvider client={client}>{children}</ApolloProvider>
 );

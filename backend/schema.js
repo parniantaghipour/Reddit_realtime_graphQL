@@ -13,12 +13,9 @@ const typeDefs = gql`
     posts: [Post!]!
   }
 
-  type Subscription {
-    postAdded: Post!
-  }
-
   type Mutation {
     crawlPost(post: PostInput!): Post
+    deletePost(id: ID!): Post
   }
 
   input PostInput {
@@ -27,6 +24,10 @@ const typeDefs = gql`
     url: String
     score: Int
     createdAt: String
+  }
+
+  type Subscription {
+    postAdded: Post!
   }
 `;
 

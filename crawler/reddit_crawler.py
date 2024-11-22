@@ -26,9 +26,12 @@ def fetch_posts(subreddit_name, limit=10):
 def send_to_backend(posts):
     url = "http://localhost:4000/crawl"
     for post in posts:
-        requests.post(url, json=post)
+        response = requests.post(url, json=post)
+        print(f"Response from backend: {response.status_code}")  # Log the response status
+
 
 # Run crawler
 if __name__ == "__main__":
-    posts = fetch_posts("programming", 5)
+    posts = fetch_posts("programming", 10)
     send_to_backend(posts)
+    

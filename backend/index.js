@@ -2,27 +2,17 @@ const { ApolloServer } = require('apollo-server-express');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors'); // Import CORS
+const cors = require('cors');
 const { createServer } = require('http');
 const { useServer } = require('graphql-ws/lib/use/ws');
 const { WebSocketServer } = require('ws');
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 
-// Create Express app
+// Initialize Express app
 const app = express();
-
-// Enable CORS for all routes
-app.use(cors()); // Add CORS support
-
-// Parse JSON payloads
+app.use(cors());
 app.use(bodyParser.json());
-
-// Define the /crawl endpoint
-app.post('/crawl', (req, res) => {
-  resolvers.Mutation.crawlPost(null, { post: req.body });
-  res.sendStatus(200);
-});
 
 // Create GraphQL schema
 const schema = makeExecutableSchema({ typeDefs, resolvers });
@@ -33,18 +23,33 @@ const server = new ApolloServer({ schema });
 // Create HTTP server for Express and WebSocket
 const httpServer = createServer(app);
 
-// WebSocket server for subscriptions
+// Set up WebSocket server using graphql-ws
 const wsServer = new WebSocketServer({
   server: httpServer,
   path: '/graphql',
 });
+app.post('/crawl', (req, res) => {
+    console.log('Data received from crawler:', req.body); // Log the received data
+    resolvers.Mutation.crawlPost(null, { post: req.body }); // Call the mutation
+    res.sendStatus(200);
+  });
 
-// Use graphql-ws for subscriptions
-useServer({ schema }, wsServer);
+useServer(
+  {
+    schema,
+    onConnect: (ctx) => {
+      console.log('WebSocket connected:', ctx.connectionParams);
+    },
+    onDisconnect: () => {
+      console.log('WebSocket disconnected');
+    },
+  },
+  wsServer
+);
 
-// Start the Apollo Server and apply middleware
+// Start Apollo Server and apply middleware
 (async () => {
-  await server.start(); // Explicitly start the Apollo server
+  await server.start();
   server.applyMiddleware({ app });
 
   const PORT = 4000;
